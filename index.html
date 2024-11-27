@@ -1,25 +1,98 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notas por Voz</title>
-    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <h1>Notas por Voz</h1>
-    </header>
-    <main>
-        <button id="recordButton">🎤 Grabar</button>
-        <p id="status">Presiona el botón para comenzar a hablar...</p>
-        <div id="notes">
-            <h2>Mis Notas</h2>
-            <ul id="notesList"></ul>
-        </div>
-        <button id="exportCSV">Exportar a CSV</button>
-        <button id="exportJSON">Exportar a JSON</button>
-    </main>
-    <script src="app.js"></script>
+    <h1>Notas por Voz</h1>
+    <button id="recordButton">🎤 Grabar</button>
+    <button id="clearButton">🗑️ Limpiar Notas</button>
+    <p id="status">Presiona "Grabar" para comenzar.</p>
+    <ul id="notesList"></ul>
+    <button id="exportCSV">Exportar a CSV</button>
+    <button id="exportJSON">Exportar a JSON</button>
+
+    <script>
+        const recordButton = document.getElementById("recordButton");
+        const clearButton = document.getElementById("clearButton");
+        const status = document.getElementById("status");
+        const notesList = document.getElementById("notesList");
+        const exportCSV = document.getElementById("exportCSV");
+        const exportJSON = document.getElementById("exportJSON");
+
+        let notes = JSON.parse(localStorage.getItem("notes")) || [];
+
+        // Actualiza la lista de notas
+        const updateNotesList = () => {
+            notesList.innerHTML = "";
+            notes.forEach((note) => {
+                const li = document.createElement("li");
+                li.textContent = `${note.date}: ${note.text}`;
+                notesList.appendChild(li);
+            });
+        };
+
+        // Grabar y transcribir voz
+        const startRecording = () => {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = "es-ES";
+
+            recognition.start();
+            status.textContent = "Escuchando...";
+
+            recognition.onresult = (event) => {
+                const text = event.results[0][0].transcript;
+                const date = new Date().toLocaleString();
+                notes.push({ date, text });
+                localStorage.setItem("notes", JSON.stringify(notes));
+                updateNotesList();
+                status.textContent = "Nota guardada.";
+            };
+
+            recognition.onerror = () => {
+                status.textContent = "Error al grabar. Intenta de nuevo.";
+            };
+        };
+
+        // Exportar a CSV
+        const exportToCSV = () => {
+            const csvContent = notes.map(note => `"${note.date}","${note.text}"`).join("\n");
+            const blob = new Blob([`Fecha,Texto\n${csvContent}`], { type: "text/csv" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "notas.csv";
+            link.click();
+        };
+
+        // Exportar a JSON
+        const exportToJSON = () => {
+            const blob = new Blob([JSON.stringify(notes, null, 2)], { type: "application/json" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "notas.json";
+            link.click();
+        };
+
+        // Limpiar el localStorage y reiniciar notas
+        const clearNotes = () => {
+            if (confirm("¿Estás seguro de que quieres borrar todas las notas? Esta acción no se puede deshacer.")) {
+                notes = [];
+                localStorage.removeItem("notes");
+                updateNotesList();
+                status.textContent = "Notas eliminadas.";
+            }
+        };
+
+        // Event listeners
+        recordButton.addEventListener("click", startRecording);
+        clearButton.addEventListener("click", clearNotes);
+        exportCSV.addEventListener("click", exportToCSV);
+        exportJSON.addEventListener("click", exportToJSON);
+
+        // Inicializar
+        updateNotesList();
+    </script>
 </body>
 </html>
