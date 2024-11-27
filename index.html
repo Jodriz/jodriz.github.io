@@ -84,25 +84,21 @@
         //     link.click();
         // };
 
-        const clearButton = document.getElementById("clearButton");
-        // Limpiar el localStorage y reiniciar notas
-        const clearNotes = () => {
-            if (confirm("¿Estás seguro de que quieres borrar todas las notas? Esta acción no se puede deshacer.")) {
-                notes = [];
-                localStorage.removeItem("notes");
-                updateNotesList();
-                status.textContent = "Notas eliminadas.";
-            }
-        };
+        // const clearButton = document.getElementById("clearButton");
+        // // Limpiar el localStorage y reiniciar notas
+        // const clearNotes = () => {
+        //     if (confirm("¿Estás seguro de que quieres borrar todas las notas? Esta acción no se puede deshacer.")) {
+        //         notes = [];
+        //         localStorage.removeItem("notes");
+        //         updateNotesList();
+        //         status.textContent = "Notas eliminadas.";
+        //     }
+        // };
 
-        // Event listeners
-        recordButton.addEventListener("click", startRecording);
-        clearButton.addEventListener("click", clearNotes);
-        exportCSV.addEventListener("click", exportToCSV);
-        exportJSON.addEventListener("click", exportToJSON);
-
-        // Inicializar
-        updateNotesList();
+        // // Event listeners
+        // clearButton.addEventListener("click", clearNotes);
+        // // Inicializar
+        // updateNotesList();
     </script>
 </body>
 

@@ -61,6 +61,18 @@ const exportToJSON = () => {
 recordButton.addEventListener("click", startRecording);
 exportCSV.addEventListener("click", exportToCSV);
 exportJSON.addEventListener("click", exportToJSON);
+const clearButton = document.getElementById("clearButton");
+// Limpiar el localStorage y reiniciar notas
+const clearNotes = () => {
+    if (confirm("¿Estás seguro de que quieres borrar todas las notas? Esta acción no se puede deshacer.")) {
+        notes = [];
+        localStorage.removeItem("notes");
+        updateNotesList();
+        status.textContent = "Notas eliminadas.";
+    }
+};
 
+// Event listeners
+clearButton.addEventListener("click", clearNotes);
 // Inicializar
 updateNotesList();
