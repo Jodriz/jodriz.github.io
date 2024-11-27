@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notas por Voz</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Notas por Voz</h1>
+    </header>
+    <main>
+        <button id="recordButton">🎤 Grabar</button>
+        <p id="status">Presiona el botón para comenzar a hablar...</p>
+        <div id="notes">
+            <h2>Mis Notas</h2>
+            <ul id="notesList"></ul>
+        </div>
+        <button id="exportCSV">Exportar a CSV</button>
+        <button id="exportJSON">Exportar a JSON</button>
+    </main>
+    <script src="app.js"></script>
+</body>
+</html>
