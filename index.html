@@ -1,20 +1,27 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
     <title>Notas por Voz</title>
 </head>
-<body>
-    <h1>Notas por Voz</h1>
-    <button id="recordButton">🎤 Grabar</button>
-    <button id="clearButton">🗑️ Limpiar Notas</button>
-    <p id="status">Presiona "Grabar" para comenzar.</p>
-    <ul id="notesList"></ul>
-    <button id="exportCSV">Exportar a CSV</button>
-    <button id="exportJSON">Exportar a JSON</button>
 
+<body>
+    <header>
+        <h1>Notas por Voz</h1>
+    </header>
+    <main>
+
+        <button id="recordButton">🎤 Grabar</button>
+        <button id="clearButton">🗑️ Limpiar Notas</button>
+        <p id="status">Presiona "Grabar" para comenzar.</p>
+        <ul id="notesList"></ul>
+        <button id="exportCSV">Exportar a CSV</button>
+        <button id="exportJSON">Exportar a JSON</button>
+    </main>
+    <script src="app.js"></script>
     <script>
         const recordButton = document.getElementById("recordButton");
         const clearButton = document.getElementById("clearButton");
@@ -96,4 +103,5 @@
         updateNotesList();
     </script>
 </body>
+
 </html>
