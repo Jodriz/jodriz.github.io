@@ -13,6 +13,18 @@
         <h1>Notas por Voz</h1>
     </header>
     <main>
+        <section>
+            <label for="categoryInput">Nueva Categoría:</label>
+            <input type="text" id="categoryInput" placeholder="Escribe una categoría">
+            <button id="addCategoryButton">Añadir Categoría</button>
+        </section>
+        <section>
+            <label for="categorySelect">Categoría:</label>
+            <select id="categorySelect">
+                <option value="Todas">Todas</option>
+            </select>
+            <button id="deleteCategoryButton">Eliminar Categoría</button>
+        </section>
         <button id="recordButton">🎤 Grabar</button>
         <button id="clearButton">🗑️ Limpiar Notas</button>
         <p id="status">Presiona "Grabar" para comenzar.</p>
