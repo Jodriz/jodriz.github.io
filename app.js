@@ -1,15 +1,21 @@
 const recordButton = document.getElementById("recordButton");
 const status = document.getElementById("status");
-const notesList = document.getElementById("notesList");
+const notesTableBody = document.getElementById("notesTableBody");
 const exportCSV = document.getElementById("exportCSV");
 const exportJSON = document.getElementById("exportJSON");
 const categoryInput = document.getElementById("categoryInput");
 const addCategoryButton = document.getElementById("addCategoryButton");
 const categorySelect = document.getElementById("categorySelect");
 const clearButton = document.getElementById("clearButton");
+const paginationControls = document.getElementById("paginationControls");
+const deleteCategoryButton = document.getElementById("deleteCategoryButton");
 
 let notes = JSON.parse(localStorage.getItem("notes")) || [];
 let categories = JSON.parse(localStorage.getItem("categories")) || ["Todas"];
+let currentPage = 1;
+const notesPerPage = 5; // Número de notas por página
+let sortColumn = "date";
+let sortOrder = "asc";
 
 // Actualiza el selector de categorías
 const updateCategorySelect = () => {
@@ -18,129 +24,145 @@ const updateCategorySelect = () => {
         .join("");
 };
 
-// Actualiza la lista de notas según la categoría seleccionada
-const updateNotesList = () => {
-    const selectedCategory = categorySelect.value;
-    notesList.innerHTML = "";
-    const filteredNotes = selectedCategory === "Todas"
+// Actualiza la tabla con las notas, aplicando paginación y ordenamiento
+const updateNotesTable = () => {
+    const filteredNotes = categorySelect.value === "Todas"
         ? notes
-        : notes.filter(note => note.category === selectedCategory);
+        : notes.filter(note => note.category === categorySelect.value);
 
-    filteredNotes.forEach(note => {
-        const li = document.createElement("li");
-        li.textContent = `[${note.category}] ${note.date}: ${note.text}`;
-        notesList.appendChild(li);
+    const sortedNotes = filteredNotes.sort((a, b) => {
+        const valA = a[sortColumn]?.toLowerCase ? a[sortColumn].toLowerCase() : a[sortColumn];
+        const valB = b[sortColumn]?.toLowerCase ? b[sortColumn].toLowerCase() : b[sortColumn];
+        return sortOrder === "asc" ? valA.localeCompare(valB) : valB.localeCompare(valA);
     });
+
+    const startIndex = (currentPage - 1) * notesPerPage;
+    const paginatedNotes = sortedNotes.slice(startIndex, startIndex + notesPerPage);
+
+    notesTableBody.innerHTML = paginatedNotes.map((note, index) => {
+        const [date, time] = note.date.split(", ");
+        return `
+            <tr>
+                <td>${note.category}</td>
+                <td>${date}</td>
+                <td>${time}</td>
+                <td>${note.text}</td>
+                <td>
+                    <button onclick="editNote(${notes.indexOf(note)})">Editar</button>
+                </td>
+            </tr>`;
+    }).join("");
+
+    const totalPages = Math.ceil(filteredNotes.length / notesPerPage);
+    paginationControls.innerHTML = Array.from({ length: totalPages }, (_, i) => {
+        return `<button ${i + 1 === currentPage ? "disabled" : ""} onclick="changePage(${i + 1})">${i + 1}</button>`;
+    }).join(" ");
 };
 
-// Añade una nueva categoría
-const addCategory = () => {
+// Cambiar de página
+const changePage = (page) => {
+    currentPage = page;
+    updateNotesTable();
+};
+
+// Editar nota
+const editNote = (index) => {
+    const note = notes[index];
+    const newCategory = prompt("Edita la categoría:", note.category);
+    const newText = prompt("Edita el texto:", note.text);
+
+    if (newCategory) note.category = newCategory;
+    if (newText) note.text = newText;
+
+    localStorage.setItem("notes", JSON.stringify(notes));
+    updateNotesTable();
+};
+
+// Añadir nueva categoría
+addCategoryButton.addEventListener("click", () => {
     const newCategory = categoryInput.value.trim();
     if (newCategory && !categories.includes(newCategory)) {
         categories.push(newCategory);
         localStorage.setItem("categories", JSON.stringify(categories));
         updateCategorySelect();
         categoryInput.value = "";
-        alert( "Categoría añadida.");
+        alert("Categoría añadida.");
     } else {
-        alert( "Categoría inválida o ya existe.");
+        alert("Categoría inválida o ya existe.");
     }
-};
+});
 
-// Grabar y transcribir voz
-const startRecording = () => {
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = "es-ES";
-
-    recognition.start();
-    status.textContent = "Escuchando...";
-
-    recognition.onresult = (event) => {
-        const text = event.results[0][0].transcript;
-        const date = new Date().toLocaleString();
-        const category = categorySelect.value !== "Todas" ? categorySelect.value : "Sin categoría";
-
-        notes.push({ date, text, category });
-        localStorage.setItem("notes", JSON.stringify(notes));
-        updateNotesList();
-        alert("Nota guardada.");
-    };
-
-    recognition.onerror = () => {
-        alert("Error al grabar. Intenta de nuevo.");
-    };
-};
-
-// Exportar a CSV
-const exportToCSV = () => {
-    const csvContent = notes.map(note => `"${note.date}","${note.text}","${note.category}"`).join("\n");
-    const blob = new Blob([`Fecha,Texto,Categoría\n${csvContent}`], { type: "text/csv" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "notas.csv";
-    link.click();
-};
-
-// Exportar a JSON
-const exportToJSON = () => {
-    const blob = new Blob([JSON.stringify(notes, null, 2)], { type: "application/json" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "notas.json";
-    link.click();
-};
-
-// Limpiar el localStorage y reiniciar notas
-const clearNotes = () => {
-    if (confirm("¿Estás seguro de que quieres borrar todas las notas? Esta acción no se puede deshacer.")) {
-        notes = [];
-        localStorage.removeItem("notes");
-        updateNotesList();
-        alert("Notas eliminadas.");
-    }
-};
-
-const deleteCategoryButton = document.getElementById("deleteCategoryButton");
-
-// Elimina la categoría seleccionada
-const deleteCategory = () => {
+// Eliminar categoría
+deleteCategoryButton.addEventListener("click", () => {
     const selectedCategory = categorySelect.value;
-
-    // No se puede eliminar la categoría "Todas"
     if (selectedCategory === "Todas") {
         alert("No puedes eliminar la categoría 'Todas'.");
         return;
     }
-
-    // Confirmar eliminación
-    if (confirm(`¿Estás seguro de que deseas eliminar la categoría "${selectedCategory}"? Esto también eliminará todas las notas asociadas.`)) {
-        // Filtrar notas para eliminar las de la categoría seleccionada
+    if (confirm(`¿Eliminar la categoría "${selectedCategory}" y sus notas?`)) {
         notes = notes.filter(note => note.category !== selectedCategory);
-        localStorage.setItem("notes", JSON.stringify(notes));
-
-        // Eliminar la categoría del listado
         categories = categories.filter(category => category !== selectedCategory);
+        localStorage.setItem("notes", JSON.stringify(notes));
         localStorage.setItem("categories", JSON.stringify(categories));
-
-        // Actualizar la interfaz
         updateCategorySelect();
-        updateNotesList();
-        alert(`La categoría "${selectedCategory}" ha sido eliminada.`);
+        updateNotesTable();
+        alert(`Categoría "${selectedCategory}" eliminada.`);
     }
-};
+});
 
-// Event listener para eliminar categoría
-deleteCategoryButton.addEventListener("click", deleteCategory);
+// Grabar y transcribir voz
+recordButton.addEventListener("click", () => {
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = "es-ES";
+    recognition.start();
+    status.textContent = "Escuchando...";
+    recognition.onresult = (event) => {
+        const text = event.results[0][0].transcript;
+        const date = new Date().toLocaleString();
+        const category = categorySelect.value !== "Todas" ? categorySelect.value : "Sin categoría";
+        notes.push({ date, text, category });
+        localStorage.setItem("notes", JSON.stringify(notes));
+        updateNotesTable();
+        alert("Nota guardada.");
+        status.textContent = "Presiona \"Grabar\" para comenzar."
+    };
+    recognition.onerror = () => alert("Error al grabar. Intenta de nuevo.");
+});
 
+// Limpiar notas
+clearButton.addEventListener("click", () => {
+    if (confirm("¿Borrar todas las notas?")) {
+        notes = [];
+        localStorage.removeItem("notes");
+        updateNotesTable();
+        alert("Notas eliminadas.");
+    }
+});
 
-// Event listeners
-addCategoryButton.addEventListener("click", addCategory);
-categorySelect.addEventListener("change", updateNotesList);
-recordButton.addEventListener("click", startRecording);
-exportCSV.addEventListener("click", exportToCSV);
-exportJSON.addEventListener("click", exportToJSON);
-clearButton.addEventListener("click", clearNotes);
+// Exportar a CSV con codificación UTF-8
+exportCSV.addEventListener("click", () => {
+    const csvContent = notes.map(note => `"${note.date}","${note.text}","${note.category}"`).join("\n");
+    const blob = new Blob(["\uFEFF" + `Fecha,Texto,Categoría\n${csvContent}`], { type: "text/csv;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "notas.csv";
+    link.click();
+});
+
+// Exportar a JSON con codificación UTF-8
+exportJSON.addEventListener("click", () => {
+    const blob = new Blob(["\uFEFF" + JSON.stringify(notes, null, 2)], { type: "application/json;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "notas.json";
+    link.click();
+});
+
+// Detectar cambio en el combo box de categoría y actualizar la tabla
+categorySelect.addEventListener("change", () => {
+    updateNotesTable();
+});
 
 // Inicializar
 updateCategorySelect();
-updateNotesList();
+updateNotesTable();

@@ -28,14 +28,38 @@
         <button id="recordButton">🎤 Grabar</button>
         <button id="clearButton">🗑️ Limpiar Notas</button>
         <p id="status">Presiona "Grabar" para comenzar.</p>
-        <div id="notes">
+        <div id="notes" class="row">
             <h2>Mis Notas</h2>
-            <ul id="notesList"></ul>
+            <section>
+                <button id="showTableButton">Tabla</button>
+                <button id="showGraphButton">Gráfico</button>
+            </section>
+            <div id="tableContainer">
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th data-column="category" data-order="asc">Categoría</th>
+                            <th data-column="date" data-order="asc">Fecha</th>
+                            <th data-column="time" data-order="asc">Hora</th>
+                            <th data-column="text" data-order="asc">Texto</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="notesTableBody"></tbody>
+                </table>
+                <div id="paginationControls"></div>
+            </div>
+            <div id="graphContainer" style="display: none;">
+                <canvas id="categoryGraph"></canvas>
+            </div>
         </div>
         <button id="exportCSV">Exportar a CSV</button>
         <button id="exportJSON">Exportar a JSON</button>
     </main>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="app.js"></script>
+    <script src="graphs.js"></script>
 </body>
 
 </html>

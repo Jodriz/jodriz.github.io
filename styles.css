@@ -14,6 +14,8 @@ header {
 
 main {
     padding: 1rem;
+    max-width: 90%;
+    margin: 0 auto;
 }
 
 button {
@@ -21,17 +23,114 @@ button {
     padding: 10px 20px;
     font-size: 1rem;
     cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #6200ea;
+    color: white;
+    transition: background-color 0.3s;
 }
 
-#notesList {
-    list-style: none;
-    padding: 0;
+button:hover {
+    background-color: #3700b3;
 }
 
-#notesList li {
-    background: #ffffff;
-    margin: 5px 0;
+input, select {
+    margin: 10px;
     padding: 10px;
+    font-size: 1rem;
     border: 1px solid #ddd;
     border-radius: 5px;
+    width: calc(100% - 22px);
+    max-width: 400px;
+}
+
+#status {
+    font-size: 1rem;
+    color: #333;
+    margin: 20px 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: #ffffff;
+}
+
+thead th {
+    background-color: #6200ea;
+    color: white;
+    padding: 10px;
+    cursor: pointer;
+    text-transform: capitalize;
+    position: relative;
+}
+
+thead th:hover {
+    background-color: #3700b3;
+}
+
+tbody td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+tbody tr:nth-child(odd) {
+    background-color: #f3f3f3;
+}
+
+tbody tr:hover {
+    background-color: #e9e9e9;
+}
+
+#paginationControls {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#paginationControls button {
+    background-color: #6200ea;
+    color: white;
+    padding: 5px 15px;
+    margin: 0 5px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#paginationControls button[disabled] {
+    background-color: #bbb;
+    cursor: not-allowed;
+}
+
+#paginationControls button:hover:not([disabled]) {
+    background-color: #3700b3;
+}
+
+h2 {
+    margin-top: 20px;
+    color: #333;
+}
+
+.alert {
+    color: red;
+    font-weight: bold;
+}
+
+.success {
+    color: green;
+    font-weight: bold;
+}
+
+#tableContainer {
+    display: block;
+}
+
+#graphContainer {
+    display: none;
+    margin: 20px auto;
+    max-width: 600px;
 }
