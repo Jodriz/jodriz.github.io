@@ -134,3 +134,10 @@ h2 {
     margin: 20px auto;
     max-width: 600px;
 }
+
+.table-wrapper {
+    display: flex;
+    justify-content: center; /* Centra la tabla */
+    overflow-x: auto; /* Permite desplazamiento horizontal si es necesario */
+    width: 100%; /* Asegura que se adapte al contenedor principal */
+}

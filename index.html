@@ -34,21 +34,22 @@
                 <button id="showTableButton">Tabla</button>
                 <button id="showGraphButton">Gráfico</button>
             </section>
-            <div id="tableContainer">
-
-                <table>
-                    <thead>
-                        <tr>
-                            <th data-column="category" data-order="asc">Categoría</th>
-                            <th data-column="date" data-order="asc">Fecha</th>
-                            <th data-column="time" data-order="asc">Hora</th>
-                            <th data-column="text" data-order="asc">Texto</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="notesTableBody"></tbody>
-                </table>
-                <div id="paginationControls"></div>
+            <div class="table-wrapper">
+                <div id="tableContainer">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th data-column="category" data-order="asc">Categoría</th>
+                                <th data-column="date" data-order="asc">Fecha</th>
+                                <th data-column="time" data-order="asc">Hora</th>
+                                <th data-column="text" data-order="asc">Texto</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="notesTableBody"></tbody>
+                    </table>
+                    <div id="paginationControls"></div>
+                </div>
             </div>
             <div id="graphContainer" style="display: none;">
                 <canvas id="categoryGraph"></canvas>
