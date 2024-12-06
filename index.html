@@ -34,8 +34,8 @@
                 <button id="showTableButton">Tabla</button>
                 <button id="showGraphButton">Gráfico</button>
             </section>
-            <div class="table-wrapper">
-                <div id="tableContainer">
+            <div id="tableContainer">
+                <div class="table-wrapper">
                     <table>
                         <thead>
                             <tr>
@@ -48,13 +48,14 @@
                         </thead>
                         <tbody id="notesTableBody"></tbody>
                     </table>
-                    <div id="paginationControls"></div>
                 </div>
+                <div id="paginationControls"></div>
             </div>
             <div id="graphContainer" style="display: none;">
                 <canvas id="categoryGraph"></canvas>
             </div>
         </div>
+        <p></p>
         <button id="exportCSV">Exportar a CSV</button>
         <button id="exportJSON">Exportar a JSON</button>
     </main>
