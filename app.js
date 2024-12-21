@@ -24,6 +24,7 @@ const updateCategorySelect = () => {
         .join("");
 };
 
+alert(JSON.stringify(notes));
 // Actualiza la tabla con las notas, aplicando paginación y ordenamiento
 const updateNotesTable = () => {
     const filteredNotes = categorySelect.value === "Todas"
@@ -33,18 +34,30 @@ const updateNotesTable = () => {
     const sortedNotes = filteredNotes.sort((a, b) => {
         const valA = a[sortColumn]?.toLowerCase ? a[sortColumn].toLowerCase() : a[sortColumn];
         const valB = b[sortColumn]?.toLowerCase ? b[sortColumn].toLowerCase() : b[sortColumn];
-        return sortOrder === "asc" ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        return sortOrder === "asc" ? valA?.localeCompare(valB) : valB?.localeCompare(valA);
     });
 
     const startIndex = (currentPage - 1) * notesPerPage;
     const paginatedNotes = sortedNotes.slice(startIndex, startIndex + notesPerPage);
-
-    notesTableBody.innerHTML = paginatedNotes.map((note, index) => {
-        const [date, time] = note.date.split(", ");
-        return `
-            <tr>
-                <td>${note.category}</td>
-                <td>${date}</td>
+    // alert(JSON.stringify(paginatedNotes));
+    notesTableBody.innerHTML = paginatedNotes.length === 0
+        ? ` <tr>
+                <td colspan="5">Sin registros</td>
+            </tr>`
+        : paginatedNotes.map((note, index) => {      
+            let date, time;
+            if(note["date"].includes(",")){ 
+                [date, time] = note.date.split(", ");
+            } else if(note["date"].includes(" ")){ 
+                [date, time] = note.date.split(" ");
+            } else {
+                date = note.date;
+                time = note.time;
+            }
+            return `
+                <tr>
+                    <td>${note.category}</td>
+                    <td>${date}</td>
                 <td>${time}</td>
                 <td>${note.text}</td>
                 <td>
@@ -78,14 +91,22 @@ const editNote = (index) => {
     updateNotesTable();
 };
 
-// Añadir nueva categoría
-addCategoryButton.addEventListener("click", () => {
-    const newCategory = categoryInput.value.trim();
+const addCategory = (newCategory) => {
     if (newCategory && !categories.includes(newCategory)) {
         categories.push(newCategory);
         localStorage.setItem("categories", JSON.stringify(categories));
         updateCategorySelect();
         categoryInput.value = "";
+        return true;
+    } else {
+        return false;
+    }
+};
+
+// Añadir nueva categoría
+addCategoryButton.addEventListener("click", () => {
+    const newCategory = categoryInput.value.trim();
+    if (addCategory(newCategory)) {
         alert("Categoría añadida.");
     } else {
         alert("Categoría inválida o ya existe.");
@@ -141,8 +162,8 @@ clearButton.addEventListener("click", () => {
 
 // Exportar a CSV con codificación UTF-8
 exportCSV.addEventListener("click", () => {
-    const csvContent = notes.map(note => `"${note.date}","${note.text}","${note.category}"`).join("\n");
-    const blob = new Blob(["\uFEFF" + `Fecha,Texto,Categoría\n${csvContent}`], { type: "text/csv;charset=utf-8" });
+    const csvContent = notes.map(note => `"${note.date}","${note.time}","${note.text}","${note.category}"`).join("\n");
+    const blob = new Blob(["\uFEFF" + `Fecha,Hora,Texto,Categoría\n${csvContent}`], { type: "text/csv;charset=utf-8" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.download = "notas.csv";
@@ -166,3 +187,71 @@ categorySelect.addEventListener("change", () => {
 // Inicializar
 updateCategorySelect();
 updateNotesTable();
+
+
+// Elementos para importar
+const importCSV = document.getElementById("importCSV");
+const importJSON = document.getElementById("importJSON");
+const fileInput = document.getElementById("fileInput");
+// Función para manejar la selección de archivo
+// Función para manejar la selección de archivo
+fileInput.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    const isCSV = file.type === "text/csv" || file.name.endsWith(".csv");
+    const isJSON = file.type === "application/json" || file.name.endsWith(".json");
+
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const content = e.target.result;
+
+        if (isJSON) {
+            try {
+                const importedNotes = JSON.parse(content);
+                if (Array.isArray(importedNotes)) {
+                    confirmAndReplaceNotes(importedNotes);
+                } else {
+                    alert("El archivo JSON no tiene el formato correcto.");
+                }
+            } catch {
+                alert("Error al procesar el archivo JSON.");
+            }
+        } else if (isCSV) {
+            const lines = content.split("\n").map(line => line.trim()).filter(line => line);
+            // const keys = lines[0].split(",").map(value => value.replace(/"/g, "").trim());
+            // alert(keys);
+            const importedNotes = lines.slice(1).map(line => {
+                const [date, time, text, category] = line.split(",").map(value => value.replace(/"/g, "").trim());                
+                return  {date, time, text, category};
+            });            
+            confirmAndReplaceNotes(importedNotes);
+        } else {
+            alert("El archivo seleccionado no es válido.");
+        }
+    };
+    reader.readAsText(file, "UTF-8");
+});
+// Confirmar y reemplazar notas
+const confirmAndReplaceNotes = (newNotes) => {
+    if (confirm("Esto reemplazará todas las notas actuales. ¿Estás seguro?")) {
+        notes = newNotes;
+        notes.forEach(note => addCategory(note.category));
+        localStorage.setItem("notes", JSON.stringify(notes));
+        updateNotesTable();        
+        alert("Notas importadas con éxito.");
+    }
+};
+
+// Importar desde JSON
+importJSON.addEventListener("click", () => {
+    fileInput.accept = ".json";
+    fileInput.click();
+});
+
+// Importar desde CSV
+importCSV.addEventListener("click", () => {
+    fileInput.accept = ".csv";
+    fileInput.click();
+});
+
