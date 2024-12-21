@@ -24,7 +24,6 @@ const updateCategorySelect = () => {
         .join("");
 };
 
-alert(JSON.stringify(notes));
 // Actualiza la tabla con las notas, aplicando paginación y ordenamiento
 const updateNotesTable = () => {
     const filteredNotes = categorySelect.value === "Todas"
